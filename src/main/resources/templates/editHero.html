@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script type="text/javascript" th:src="@{/js/jquery.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/vue.min.js}"></script>
+    <script type="text/javascript" th:src="@{/js/axios.min.js}"></script>
+    <style type="text/css">
+        div#app{
+            margin:20px auto;
+            width:400px;
+            padding:20px;
+        }
+    </style>
+</head>
+<body>
+
+<div id="app">
+    <div id="div4Update">
+
+        英雄名称:
+        <input type="text"    v-model="hero4Update.name" />
+        <br>
+        血量：
+        <input type="number"    v-model="hero4Update.hp" />
+        <input type="hidden"    v-model="hero4Update.id" />
+        <br>
+        <button type="button"  @click="update">修改</button>
+        <button type="button"  @click="cancel">取消</button>
+
+    </div>
+</div>
+
+<script type="text/javascript">
+    //获取地址栏参数的函数
+    function getUrlParms(name){                                 //url：http://localhost:8080/editHero?id=6195
+        var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");  //正则表达式，寻找&+name=值+&，或者$不存在，即寻找name=值
+        var r = window.location.search.substr(1).match(reg);  //r是一个数组，传入参数id,那么r为["id=6195","","6195",""]
+        if(r!=null)
+            return unescape(r[2]);
+        return null;
+    }
+
+    var data4Vue = {
+        heros: [],
+        hero4Update: { id: 0, name: '', hp: '0'}
+    };
+
+    //ViewModel
+    var vue = new Vue({
+        el: '#app',
+        data: data4Vue,
+        mounted:function(){ //mounted　表示这个 Vue 对象加载成功了
+            this.get();
+        },
+        methods: {
+            get:function(){
+                var id = getUrlParms("id");
+                var url = "heroes/"+id;
+                console.log(url);
+                axios.get(url).then(function(response) {
+                    vue.hero4Update = response.data;
+                    console.log(vue.hero4Update);
+                })
+            },
+            update:function (event) {
+                var url = "heroes";
+                axios.put(url,vue.hero4Update).then(function(response){
+                    location.href="listHero";
+                });
+            },
+            cancel:function(){
+                location.href="listHero";
+            }
+        }
+    });
+</script>
+
+
+
+</body>
+</html>
